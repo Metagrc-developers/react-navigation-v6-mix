@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,8 @@ import {windowWidth} from '../utils/Dimensions';
 import {freeGames, paidGames, sliderData} from '../model/data';
 import CustomSwitch from '../components/CustomSwitch';
 import ListItem from '../components/ListItem';
+import {AuthContext} from '../context/AuthContext';
+import Banner from '../components/Banner';
 
 export default function HomeScreen({navigation}) {
   const [gamesTab, setGamesTab] = useState(1);
@@ -28,7 +30,7 @@ export default function HomeScreen({navigation}) {
   const onSelectSwitch = value => {
     setGamesTab(value);
   };
-
+  const {userInfo} = useContext(AuthContext);
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
       <ScrollView style={{padding: 20}}>
@@ -39,7 +41,7 @@ export default function HomeScreen({navigation}) {
             marginBottom: 20,
           }}>
           <Text style={{fontSize: 18, fontFamily: 'Roboto-Medium'}}>
-            Hello John Doe
+            {`Hello ${userInfo.name} ${userInfo.lastName}`}
           </Text>
           <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <ImageBackground
@@ -52,89 +54,18 @@ export default function HomeScreen({navigation}) {
 
         <View
           style={{
-            flexDirection: 'row',
-            borderColor: '#C6C6C6',
-            borderWidth: 1,
-            borderRadius: 8,
-            paddingHorizontal: 10,
-            paddingVertical: 8,
-          }}>
-          <Feather
-            name="search"
-            size={20}
-            color="#C6C6C6"
-            style={{marginRight: 5}}
-          />
-          <TextInput placeholder="Search" />
-        </View>
-
-        <View
-          style={{
             marginVertical: 15,
             flexDirection: 'row',
             justifyContent: 'space-between',
           }}>
           <Text style={{fontSize: 18, fontFamily: 'Roboto-Medium'}}>
-            Upcoming Games
+            Our Products
           </Text>
           <TouchableOpacity onPress={() => {}}>
             <Text style={{color: '#0aada8'}}>See all</Text>
           </TouchableOpacity>
         </View>
-
-        <Carousel
-          ref={c => {
-            this._carousel = c;
-          }}
-          data={sliderData}
-          renderItem={renderBanner}
-          sliderWidth={windowWidth - 40}
-          itemWidth={300}
-          loop={true}
-        />
-
-        <View style={{marginVertical: 20}}>
-          <CustomSwitch
-            selectionMode={1}
-            option1="Free to play"
-            option2="Paid games"
-            onSelectSwitch={onSelectSwitch}
-          />
-        </View>
-
-        {gamesTab == 1 &&
-          freeGames.map(item => (
-            <ListItem
-              key={item.id}
-              photo={item.poster}
-              title={item.title}
-              subTitle={item.subtitle}
-              isFree={item.isFree}
-              onPress={() =>
-                navigation.navigate('GameDetails', {
-                  title: item.title,
-                  id: item.id,
-                })
-              }
-            />
-          ))}
-        {gamesTab == 2 &&
-          paidGames.map(item => (
-            <ListItem
-              key={item.id}
-              photo={item.poster}
-              title={item.title}
-              subTitle={item.subtitle}
-              isFree={item.isFree}
-              price={item.price}
-              onPress={() =>
-                navigation.navigate('GameDetails', {
-                  title: item.title,
-                  id: item.id,
-                })
-              }
-            />
-          ))}
+        <Banner />
       </ScrollView>
     </SafeAreaView>
   );

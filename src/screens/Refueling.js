@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -7,25 +7,50 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-
+import axios from 'axios';
 import DatePicker from 'react-native-date-picker';
 
 import InputField from '../components/InputField';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import RegistrationSVG from '../assets/images/misc/registration.svg';
-import GoogleSVG from '../assets/images/misc/google.svg';
-import FacebookSVG from '../assets/images/misc/facebook.svg';
-import TwitterSVG from '../assets/images/misc/twitter.svg';
+import FontAwesome from "react-native-vector-icons/FontAwesome"
 import CustomButton from '../components/CustomButton';
+import {API_BASE_URL} from '../context/Config';
+import {AuthContext} from '../context/AuthContext';
 
-const RegisterScreen = ({navigation}) => {
+const Refueling = ({navigation}) => {
+  const {userToken} = useContext(AuthContext);
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
   const [dobLabel, setDobLabel] = useState('Date of Birth');
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [vehicles, setVehicles] = useState(null);
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-auth-token': userToken,
+    },
+  };
+  const getVehicles = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(
+        `${API_BASE_URL}vms/vehicle/list-all`,
+        config,
+      );
+      setVehicles(response.data.result);
+      if (vehicles) {
+        console.log('vehicle', vehicles);
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+    setIsLoading(false);
+  };
+  useEffect(() => {
+    getVehicles();
+  }, []);
   return (
     <SafeAreaView style={{flex: 1, justifyContent: 'center'}}>
       <ScrollView
@@ -42,18 +67,19 @@ const RegisterScreen = ({navigation}) => {
         <Text
           style={{
             fontFamily: 'Roboto-Medium',
-            fontSize: 28,
+            fontSize: 15,
             fontWeight: '500',
             color: '#333',
             marginBottom: 30,
+            alignItems: 'baseline',
           }}>
-          Register
+          Add Fuel Details
         </Text>
         <InputField
-          label={'Full Name'}
+          label={'Vehicle'}
           icon={
             <Ionicons
-              name="person-outline"
+              name="car-sport-outline"
               size={20}
               color="#666"
               style={{marginRight: 5}}
@@ -62,10 +88,10 @@ const RegisterScreen = ({navigation}) => {
         />
 
         <InputField
-          label={'Email ID'}
+          label={'Meter Reading(KM)'}
           icon={
-            <MaterialIcons
-              name="alternate-email"
+            <Ionicons
+              name="speedometer-outline"
               size={20}
               color="#666"
               style={{marginRight: 5}}
@@ -75,32 +101,52 @@ const RegisterScreen = ({navigation}) => {
         />
 
         <InputField
-          label={'Password'}
+          label={'Amount (Rs)'}
           icon={
             <Ionicons
-              name="ios-lock-closed-outline"
+              name="ios-cash-outline"
               size={20}
               color="#666"
               style={{marginRight: 5}}
             />
           }
-          inputType="password"
         />
 
         <InputField
-          label={'Confirm Password'}
+          label={'Qty (Liters)'}
           icon={
-            <Ionicons
-              name="ios-lock-closed-outline"
+            <FontAwesome
+              name="thermometer-quarter"
               size={20}
               color="#666"
               style={{marginRight: 5}}
             />
           }
-          inputType="password"
+        />
+        <InputField
+          label={'Filling Station'}
+          icon={
+            <MaterialIcons
+              name="local-gas-station"
+              size={20}
+              color="#666"
+              style={{marginRight: 5}}
+            />
+          }
         />
 
-        <View
+        <InputField
+          label={'Description'}
+          icon={
+            <Ionicons
+              name="ios-book-outline"
+              size={20}
+              color="#666"
+              style={{marginRight: 5}}
+            />
+          }
+        />
+        {/* <View
           style={{
             flexDirection: 'row',
             borderBottomColor: '#ccc',
@@ -136,24 +182,12 @@ const RegisterScreen = ({navigation}) => {
           onCancel={() => {
             setOpen(false);
           }}
-        />
+        /> */}
 
-        <CustomButton label={'Register'} onPress={() => {}} />
-
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginBottom: 30,
-          }}>
-          <Text>Already registered?</Text>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={{color: '#AD40AF', fontWeight: '700'}}> Login</Text>
-          </TouchableOpacity>
-        </View>
+        <CustomButton label={'Submit Data'} onPress={() => {}} />
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default RegisterScreen;
+export default Refueling;
